@@ -83,6 +83,15 @@ when 'sysv'
     supports :status => true, :restart => true, :reload => true
     action :enable
   end
+when 'systemd'
+  systemd_service 'zookeeper' do
+    description 'Zookeeper service'
+    after 'network.target'
+    wants 'network.target'
+    exec_start "#{executable_path} start-foreground"
+    action [:create, :enable, :start]
+    notifies :restart, 'systemd_service[zookeeper]', :delayed
+  end
 when 'exhibitor'
   Chef::Log.info('Assuming Exhibitor will start up Zookeeper.')
 else
